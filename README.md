@@ -5,3 +5,6 @@
 # **不需要解压!!**
 
 # 请在 1.5.0 版本时关闭该插件，否则可能有冲突问题
+
+## 其他插件:
+[临时SPW全屏窗口插件](https://github.com/GaodaGG/SaltFullPlugin)
