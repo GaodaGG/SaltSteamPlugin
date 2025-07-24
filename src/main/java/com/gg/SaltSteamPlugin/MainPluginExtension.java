@@ -5,6 +5,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.pf4j.Extension;
 
+import javax.swing.*;
+import java.awt.*;
+
 
 @Extension
 public class MainPluginExtension implements PlaybackExtensionPoint {
@@ -41,7 +44,7 @@ public class MainPluginExtension implements PlaybackExtensionPoint {
     public String updateLyrics(@NotNull MediaItem mediaItem) {
         SteamIntegration steamIntegration = new SteamIntegration();
         steamIntegration.initialize();
-        steamIntegration.setRichPresence("song", mediaItem.getTitle() + " by " + mediaItem.getArtist());
+        steamIntegration.setRichPresence("song", mediaItem.getArtist() + " - " + mediaItem.getTitle());
         steamIntegration.setRichPresence("steam_display", "#ListeningTo");
 
         System.out.println(steamIntegration.getCurrentUserSteamID());
