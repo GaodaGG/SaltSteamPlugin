@@ -1,3 +1,5 @@
+# *SPW 1.5 EA 已发布，请在设置 - 创意工坊 - 模组管理将插件关闭，以免与软件本体产生冲突*
+
 # 在SPW 1.5.0发布前的临时方案
 ## 用法:
 将Plugin复制到%appdata%\Salt Player for Windows\workshop
