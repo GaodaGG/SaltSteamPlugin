@@ -64,17 +64,21 @@ public class MainPluginExtension implements PlaybackExtensionPoint {
 //            return null;
 //        }
 //
-//        String formattedSong = config.formatSongString(mediaItem);
-//        boolean setRichPresence = setRichPresence(formattedSong);
-//        if (setRichPresence) {
-//            System.out.println("MediaItem rich presence set successfully: " + formattedSong);
-//        }
+        String formattedSong = config.formatSongString(mediaItem);
+        boolean setRichPresence = setRichPresence(formattedSong);
+        if (setRichPresence) {
+            System.out.println("MediaItem rich presence set successfully: " + formattedSong);
+        }
         return null;
     }
 
     @Override
     public void onLyricsLineUpdated(@Nullable LyricsLine lyricsLine) {
         setLyricsLine(lyricsLine);
+
+        if (!config.hasLyrics()) {
+            return;
+        }
 
         String formattedSong = config.formatSongString(getMediaItem(), lyricsLine);
         boolean setRichPresence = setRichPresence(formattedSong);

@@ -14,4 +14,13 @@ public class MainPlugin extends Plugin {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public void stop() {
+        super.stop();
+        SteamIntegration steamIntegration = new SteamIntegration();
+        steamIntegration.initialize();
+        steamIntegration.clearRichPresence();
+        steamIntegration.shutdown();
+    }
 }

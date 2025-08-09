@@ -120,6 +120,10 @@ public class Config {
                 .replace("{subLyrics}", subLyrics);
     }
 
+    public boolean hasLyrics() {
+        return configData.songFormat.contains("{mainLyrics}") || configData.songFormat.contains("{subLyrics}");
+    }
+
 
     public ConfigData getConfigData() {
         return configData;
