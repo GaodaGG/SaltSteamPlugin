@@ -75,9 +75,6 @@ public class MainPluginExtension implements PlaybackExtensionPoint {
     @Override
     public void onLyricsLineUpdated(@Nullable LyricsLine lyricsLine) {
         setLyricsLine(lyricsLine);
-        if (!config.isUseLyric()) {
-            return;
-        }
 
         String formattedSong = config.formatSongString(getMediaItem(), lyricsLine);
         boolean setRichPresence = setRichPresence(formattedSong);

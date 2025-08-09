@@ -120,9 +120,6 @@ public class Config {
                 .replace("{subLyrics}", subLyrics);
     }
 
-    public boolean isUseLyric() {
-        return configData.useLyric;
-    }
 
     public ConfigData getConfigData() {
         return configData;
@@ -130,6 +127,5 @@ public class Config {
 
     public static class ConfigData {
         public String songFormat = "{artist} - {title}";
-        public boolean useLyric = false;
     }
 }

@@ -35,7 +35,7 @@ test {
 
 def pluginClass = "com.gg.SaltSteamPlugin.MainPlugin"
 def pluginId = "Steam 丰富状态扩展"
-def pluginVersion = "2.0.0"
+def pluginVersion = "2.1.0"
 def pluginProvider = "GaodaGG"
 
 tasks.named("jar") {
