@@ -5,52 +5,55 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.pf4j.Extension;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.xml.transform.Source;
 
 
 @Extension
 public class MainPluginExtension implements PlaybackExtensionPoint {
-
-    @Override
-    public void onStateChanged(@NotNull State state) {
-        switch (state) {
-            case State.Ready:
-                System.out.println("Playback paused.");
-                break;
-            case State.Ended:
-                System.out.println("Playback resumed.");
-                break;
-            default:
-                System.out.println("Unknown playback state: " + state);
-        }
-    }
-
-    @Override
-    public void onIsPlayingChanged(boolean b) {
-        if (b) {
-            System.out.println("Playback is now playing.");
-        } else {
-            System.out.println("Playback is paused.");
-        }
-    }
-
-    @Override
-    public void onSeekTo(long l) {
-    }
-
-    @Nullable
-    @Override
-    public String updateLyrics(@NotNull MediaItem mediaItem) {
+    private static final Config config = Config.getInstance();
+    private static boolean setRichPresence(String formattedSong) {
         SteamIntegration steamIntegration = new SteamIntegration();
         steamIntegration.initialize();
-        steamIntegration.setRichPresence("song", mediaItem.getArtist() + " - " + mediaItem.getTitle());
-        steamIntegration.setRichPresence("steam_display", "#ListeningTo");
+        boolean song = steamIntegration.setRichPresence("song", formattedSong);
+        boolean steamDisplay = steamIntegration.setRichPresence("steam_display", "#ListeningTo");
 
         System.out.println(steamIntegration.getCurrentUserSteamID());
         steamIntegration.getRichPresence(steamIntegration.getCurrentUserSteamID(), "status");
         steamIntegration.shutdown();
+        return song && steamDisplay;
+    }
 
-        return null; // Return null to indicate no lyrics available
+    @Nullable
+    @Override
+    public String onBeforeLoadLyrics(@NotNull MediaItem mediaItem) {
+        if (config.isUseLyric()) {
+            return null;
+        }
+
+        String formattedSong = config.formatSongString(mediaItem);
+        boolean setRichPresence = setRichPresence(formattedSong);
+        if (setRichPresence) {
+            System.out.println("MediaItem rich presence set successfully: " + formattedSong);
+        }
+        return null;
+    }
+
+    @Override
+    public void onLyricsLineUpdated(@Nullable LyricsLine lyricsLine) {
+        System.out.println("isUseLyric: " + config.isUseLyric());
+        if (lyricsLine == null) {
+            return;
+        }
+
+        if (!config.isUseLyric()) {
+            return;
+        }
+
+        String formattedSong = config.formatSongString(lyricsLine);
+        boolean setRichPresence = setRichPresence(formattedSong);
+
+        if (setRichPresence) {
+            System.out.println("Lyrics rich presence set successfully: " + formattedSong);
+        }
     }
 }

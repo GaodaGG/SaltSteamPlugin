@@ -21,8 +21,9 @@ repositories {
 
 dependencies {
     implementation "com.code-disaster.steamworks4j:steamworks4j:1.9.0"
-    compileOnly "com.github.Moriafly:spw-workshop-api:0.1.0-dev06"
-    kapt "com.github.Moriafly:spw-workshop-api:0.1.0-dev06"
+    implementation "com.google.code.gson:gson:2.10.1"
+    compileOnly "com.github.Moriafly:spw-workshop-api:0.1.0-dev08"
+    kapt "com.github.Moriafly:spw-workshop-api:0.1.0-dev08"
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -38,7 +39,7 @@ def pluginVersion = "0.0.1"
 def pluginProvider = "GaodaGG"
 
 tasks.named("jar") {
-    destinationDirectory = file("C://Users/123/AppData/Roaming/Salt Player for Windows/workshop/")
+    destinationDirectory = file("C://Users/zil07/AppData/Roaming/Salt Player for Windows/workshop/")
     archiveFileName = "plugin-${pluginId}-${pluginVersion}.jar"
 
     manifest {
@@ -50,7 +51,7 @@ tasks.named("jar") {
 }
 
 tasks.register("plugin", Jar) {
-    destinationDirectory = file("C://Users/123/AppData/Roaming/Salt Player for Windows/workshop")
+    destinationDirectory = file("C://Users/zil07/AppData/Roaming/Salt Player for Windows/workshop")
     archiveFileName = "plugin-${pluginId}-${pluginVersion}.zip"
     archiveBaseName.set("plugin-" + pluginId + "-" + pluginVersion)
 
