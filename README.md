@@ -9,7 +9,6 @@
 > 示例: "{artist} - {title}" 或 "{albumArtist} - {album} - {title}"
 > 
 > 注意: {mainLyrics} 为 主歌词文本，{subLyrics} 为翻译歌词文本
-- useLyric: 当songFormat中包含歌词相关占位符时，要将此设为true
 
 # **不需要解压!!**
 
