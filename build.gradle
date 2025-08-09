@@ -34,12 +34,12 @@ test {
 }
 
 def pluginClass = "com.gg.SaltSteamPlugin.MainPlugin"
-def pluginId = "临时Steam丰富状态"
-def pluginVersion = "0.0.1"
+def pluginId = "Steam丰富状态"
+def pluginVersion = "0.0.2"
 def pluginProvider = "GaodaGG"
 
 tasks.named("jar") {
-    destinationDirectory = file("C://Users/zil07/AppData/Roaming/Salt Player for Windows/workshop/")
+    destinationDirectory = file(System.getenv("APPDATA") + "/Salt Player for Windows/workshop/")
     archiveFileName = "plugin-${pluginId}-${pluginVersion}.jar"
 
     manifest {
@@ -51,7 +51,7 @@ tasks.named("jar") {
 }
 
 tasks.register("plugin", Jar) {
-    destinationDirectory = file("C://Users/zil07/AppData/Roaming/Salt Player for Windows/workshop")
+    destinationDirectory = file(System.getenv("APPDATA") + "/Salt Player for Windows/workshop")
     archiveFileName = "plugin-${pluginId}-${pluginVersion}.zip"
     archiveBaseName.set("plugin-" + pluginId + "-" + pluginVersion)
 

@@ -5,20 +5,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.pf4j.Extension;
 
-import javax.xml.transform.Source;
-
 
 @Extension
 public class MainPluginExtension implements PlaybackExtensionPoint {
     private static final Config config = Config.getInstance();
+
     private static boolean setRichPresence(String formattedSong) {
         SteamIntegration steamIntegration = new SteamIntegration();
         steamIntegration.initialize();
         boolean song = steamIntegration.setRichPresence("song", formattedSong);
         boolean steamDisplay = steamIntegration.setRichPresence("steam_display", "#ListeningTo");
 
-        System.out.println(steamIntegration.getCurrentUserSteamID());
-        steamIntegration.getRichPresence(steamIntegration.getCurrentUserSteamID(), "status");
         steamIntegration.shutdown();
         return song && steamDisplay;
     }
@@ -40,7 +37,6 @@ public class MainPluginExtension implements PlaybackExtensionPoint {
 
     @Override
     public void onLyricsLineUpdated(@Nullable LyricsLine lyricsLine) {
-        System.out.println("isUseLyric: " + config.isUseLyric());
         if (lyricsLine == null) {
             return;
         }
