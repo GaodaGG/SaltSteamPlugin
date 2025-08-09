@@ -82,6 +82,8 @@ public class Config {
                     if (fileName.toString().equals(CONFIG_FILE)) {
                         System.out.println("配置文件已修改，重新加载配置");
                         loadConfig();
+
+                        MainPluginExtension.setRichPresence(formatSongString(MainPluginExtension.getMediaItem(), MainPluginExtension.getLyricsLine()));
                     }
                 }
 
@@ -100,7 +102,7 @@ public class Config {
         return formatSongString(null, lyricsLine);
     }
 
-    private String formatSongString(PlaybackExtensionPoint.MediaItem mediaItem, PlaybackExtensionPoint.LyricsLine lyricsLine) {
+    public String formatSongString(PlaybackExtensionPoint.MediaItem mediaItem, PlaybackExtensionPoint.LyricsLine lyricsLine) {
         String title = mediaItem != null ? mediaItem.getTitle() : "";
         String artist = mediaItem != null ? mediaItem.getArtist() : "";
         String album = mediaItem != null ? mediaItem.getAlbum() : "";

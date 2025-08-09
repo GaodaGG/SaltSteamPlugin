@@ -4,7 +4,6 @@ import com.codedisaster.steamworks.*;
 
 public class SteamIntegration {
     // 常量定义
-    private static final String STEAM_DISPLAY_KEY = "status";
     private static final String STEAM_NOT_INITIALIZED_MSG = "Steam integration not initialized";
     private SteamFriends steamFriends;
     private SteamUser steamUser;
@@ -159,60 +158,6 @@ public class SteamIntegration {
         }
     }
 
-    // Steam状态管理功能
-
-    /**
-     * 设置Steam个人状态（显示在好友列表中的状态文本）
-     *
-     * @param status 状态文本
-     * @return 是否设置成功
-     */
-    public boolean setPersonaStatus(String status) {
-        if (!initialized || steamFriends == null) {
-            System.err.println(STEAM_NOT_INITIALIZED_MSG);
-            return false;
-        }
-
-        try {
-            // 使用Rich Presence来设置状态
-            steamFriends.setRichPresence(STEAM_DISPLAY_KEY, status);
-            System.out.println("Personal status set to: " + status);
-            return true;
-        } catch (Exception e) {
-            System.err.println("Failed to set personal status: " + e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * 设置详细的游戏状态信息
-     *
-     * @param appId         应用ID（0表示非游戏状态）
-     * @param gameExtraInfo 游戏额外信息
-     * @return 是否设置成功
-     */
-    public boolean setGameInfo(int appId, String gameExtraInfo) {
-        if (!initialized || steamFriends == null) {
-            System.err.println(STEAM_NOT_INITIALIZED_MSG);
-            return false;
-        }
-
-        try {
-            if (appId > 0) {
-                // 设置为正在游戏状态
-                steamFriends.setRichPresence(STEAM_DISPLAY_KEY, "#Status_InGame");
-                steamFriends.setRichPresence("game", gameExtraInfo);
-            } else {
-                // 清除游戏状态
-                steamFriends.setRichPresence(STEAM_DISPLAY_KEY, gameExtraInfo);
-            }
-            System.out.println("Game info set - AppID: " + appId + ", Info: " + gameExtraInfo);
-            return true;
-        } catch (Exception e) {
-            System.err.println("Failed to set game info: " + e.getMessage());
-            return false;
-        }
-    }
 
     /**
      * 获取当前用户的Steam ID
@@ -232,25 +177,4 @@ public class SteamIntegration {
         }
     }
 
-    /**
-     * 获取当前个人状态
-     *
-     * @return 当前个人状态，如果未初始化则返回null
-     */
-    public SteamFriends.PersonaState getCurrentPersonaState() {
-        if (!initialized || steamFriends == null) {
-            return null;
-        }
-
-        try {
-            SteamID currentUser = getCurrentUserSteamID();
-            if (currentUser != null) {
-                return steamFriends.getFriendPersonaState(currentUser);
-            }
-            return null;
-        } catch (Exception e) {
-            System.err.println("Failed to get current persona state: " + e.getMessage());
-            return null;
-        }
-    }
 }
