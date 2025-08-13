@@ -13,6 +13,17 @@ public class MainPlugin extends Plugin {
         } catch (SteamException e) {
             throw new RuntimeException(e);
         }
+
+        Config config = Config.getInstance();
+
+        if (config.isInitInStart()) {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {}
+                MainPluginExtension.initSteamAPI();
+            }).start();
+        }
     }
 
     @Override

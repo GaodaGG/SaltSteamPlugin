@@ -16,7 +16,9 @@ public class MainPluginExtension implements PlaybackExtensionPoint {
     private static LyricsLine lyricsLine = null;
 
     public static boolean setRichPresence(String formattedSong) {
-        initSteamAPI();
+        if (!config.isInitInStart()) {
+            initSteamAPI();
+        }
 
         SteamIntegration steamIntegration = new SteamIntegration();
         steamIntegration.initialize();

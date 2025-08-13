@@ -126,6 +126,9 @@ public class Config {
         return configData.songFormat.contains("{mainLyrics}") || configData.songFormat.contains("{subLyrics}");
     }
 
+    public boolean isInitInStart() {
+        return configData.initInStart;
+    }
 
     public ConfigData getConfigData() {
         return configData;
@@ -133,5 +136,6 @@ public class Config {
 
     public static class ConfigData {
         public String songFormat = "{artist} - {title}";
+        public boolean initInStart = false;
     }
 }
