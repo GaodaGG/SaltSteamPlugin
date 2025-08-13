@@ -27,7 +27,7 @@ public class MainPluginExtension implements PlaybackExtensionPoint {
         return song && steamDisplay;
     }
 
-    private static void initSteamAPI() {
+    public static void initSteamAPI() {
         if (!isInitialized) {
             try {
                 SteamAPI.init();
@@ -60,10 +60,6 @@ public class MainPluginExtension implements PlaybackExtensionPoint {
     public String onBeforeLoadLyrics(@NotNull MediaItem mediaItem) {
         setMediaItem(mediaItem);
 
-//        if (config.isUseLyric()) {
-//            return null;
-//        }
-//
         String formattedSong = config.formatSongString(mediaItem);
         boolean setRichPresence = setRichPresence(formattedSong);
         if (setRichPresence) {
@@ -82,7 +78,6 @@ public class MainPluginExtension implements PlaybackExtensionPoint {
 
         String formattedSong = config.formatSongString(getMediaItem(), lyricsLine);
         boolean setRichPresence = setRichPresence(formattedSong);
-
         if (setRichPresence) {
             System.out.println("Lyrics rich presence set successfully: " + formattedSong);
         }

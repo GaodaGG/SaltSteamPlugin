@@ -100,7 +100,11 @@ public class SteamIntegration {
         try {
             System.out.println("Setting rich presence: " + key + " = " + value);
 
-            steamFriends.setRichPresence(key, value);
+            boolean b = steamFriends.setRichPresence(key, value);
+            if (!b) {
+                System.err.println("Failed to set rich presence for key: " + key);
+                return false;
+            }
             System.out.println("SetRichPresence succeeded");
             return true;
 

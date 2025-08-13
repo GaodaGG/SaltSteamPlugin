@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.*;
+import java.text.Normalizer;
 
 public class Config {
     private static final String CONFIG_FILE = "config.json";
@@ -111,13 +112,14 @@ public class Config {
         String mainLyrics = lyricsLine != null ? lyricsLine.getPureMainText() : "";
         String subLyrics = (lyricsLine != null && lyricsLine.getPureSubText() != null) ? lyricsLine.getPureSubText() : "";
 
-        return configData.songFormat
+        String replacedString = configData.songFormat
                 .replace("{title}", title)
                 .replace("{artist}", artist)
                 .replace("{album}", album)
                 .replace("{albumArtist}", albumArtist)
                 .replace("{mainLyrics}", mainLyrics)
                 .replace("{subLyrics}", subLyrics);
+        return Normalizer.normalize(replacedString, Normalizer.Form.NFKD).replaceAll("\\p{M}", "");
     }
 
     public boolean hasLyrics() {
