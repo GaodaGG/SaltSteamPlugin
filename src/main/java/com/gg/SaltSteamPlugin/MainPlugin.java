@@ -16,7 +16,7 @@ public class MainPlugin extends Plugin {
 
         Config config = Config.getInstance();
 
-        if (config.isInitInStart()) {
+        if (config.isInitAfterStart()) {
             new Thread(() -> {
                 try {
                     Thread.sleep(3000);

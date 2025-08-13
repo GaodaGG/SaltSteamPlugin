@@ -16,7 +16,7 @@ public class MainPluginExtension implements PlaybackExtensionPoint {
     private static LyricsLine lyricsLine = null;
 
     public static boolean setRichPresence(String formattedSong) {
-        if (!config.isInitInStart()) {
+        if (!config.isInitAfterStart()) {
             initSteamAPI();
         }
 

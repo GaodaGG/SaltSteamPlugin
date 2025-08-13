@@ -9,6 +9,8 @@
 > 示例: "{artist} - {title}" 或 "{albumArtist} - {album} - {title}"
 > 
 > 注意: {mainLyrics} 为 主歌词文本，{subLyrics} 为翻译歌词文本
+- initAfterStart: 为true时，插件将会在SPW启动后三秒再初始化Steam SDK
+> 这可以避免SPW启动后，应用内显示steam无法连接的问题
 
 # **不需要解压!!**
 
