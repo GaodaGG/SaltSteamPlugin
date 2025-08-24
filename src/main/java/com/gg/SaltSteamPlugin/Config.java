@@ -1,24 +1,25 @@
 package com.gg.SaltSteamPlugin;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.xuncorp.spw.workshop.api.PlaybackExtensionPoint;
+import com.xuncorp.spw.workshop.api.WorkshopApi;
+import com.xuncorp.spw.workshop.api.config.ConfigHelper;
+import com.xuncorp.spw.workshop.api.config.ConfigManager;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.Normalizer;
 
 public class Config {
     private static final String CONFIG_FILE = "config.json";
     private static Config instance;
+    ConfigManager configManager;
+    ConfigHelper configHelper;
     private ConfigData configData;
 
     private Config() {
         loadConfig();
-        new Thread(this::configWatcher).start();
+        configWatcher();
     }
 
     public static Config getInstance() {
@@ -34,65 +35,33 @@ public class Config {
     }
 
     private void loadConfig() {
-        Path configPath = getConfigPath();
-        Gson gson = new Gson();
+        configManager = WorkshopApi.manager().createConfigManager("Steam 丰富状态扩展");
+        configHelper = configManager.getConfig();
 
-        if (Files.exists(configPath)) {
-            try (Reader reader = Files.newBufferedReader(configPath)) {
-                configData = gson.fromJson(reader, ConfigData.class);
-                System.out.println("配置文件加载成功");
-            } catch (IOException e) {
-                System.err.println("读取配置文件失败: " + e.getMessage());
-                configData = new ConfigData();
-            }
-        } else {
+        if (Files.notExists(configHelper.getConfigPath())) {
             // 创建默认配置文件
             configData = new ConfigData();
             saveConfig();
+            return;
         }
+
+        configData = new ConfigData();
+        configData.songFormat = configHelper.get("songFormat", "{artist} - {title}");
+        configData.initAfterStart = configHelper.get("initAfterStart", false);
+        System.out.println("配置文件加载成功");
     }
 
     public void saveConfig() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        Path configPath = getConfigPath();
-        try (Writer writer = Files.newBufferedWriter(configPath)) {
-            gson.toJson(configData, writer);
-            System.out.println("配置文件保存成功");
-        } catch (IOException e) {
-            System.err.println("保存配置文件失败: " + e.getMessage());
-        }
+        configHelper.set("songFormat", configData.songFormat);
+        configHelper.set("initAfterStart", configData.initAfterStart);
+        configHelper.save();
     }
 
     private void configWatcher() {
-        try {
-            Path configPath = getConfigPath().getParent();
-            WatchService watcher = FileSystems.getDefault().newWatchService();
-            configPath.register(watcher, StandardWatchEventKinds.ENTRY_MODIFY);
-
-            while (true) {
-                WatchKey key = watcher.take();
-                for (WatchEvent<?> event : key.pollEvents()) {
-                    WatchEvent.Kind<?> kind = event.kind();
-                    if (kind == StandardWatchEventKinds.OVERFLOW) {
-                        continue;
-                    }
-
-                    WatchEvent<Path> ev = (WatchEvent<Path>) event;
-                    Path fileName = ev.context();
-
-                    if (fileName.toString().equals(CONFIG_FILE)) {
-                        System.out.println("配置文件已修改，重新加载配置");
-                        loadConfig();
-
-                        MainPluginExtension.setRichPresence(formatSongString(MainPluginExtension.getMediaItem(), MainPluginExtension.getLyricsLine()));
-                    }
-                }
-
-                key.reset();
-            }
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        configManager.addConfigChangeListener(configHelper -> {
+            loadConfig();
+            MainPluginExtension.setRichPresence(formatSongString(MainPluginExtension.getMediaItem(), MainPluginExtension.getLyricsLine()));
+        });
     }
 
     public String formatSongString(PlaybackExtensionPoint.MediaItem mediaItem) {
