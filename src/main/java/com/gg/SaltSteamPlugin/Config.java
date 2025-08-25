@@ -13,9 +13,9 @@ import java.text.Normalizer;
 public class Config {
     private static final String CONFIG_FILE = "config.json";
     private static Config instance;
-    ConfigManager configManager;
-    ConfigHelper configHelper;
-    private ConfigData configData;
+    ConfigManager configManager = WorkshopApi.manager().createConfigManager("Steam 丰富状态扩展");
+    ConfigHelper configHelper = configManager.getConfig();
+    private ConfigData configData = new ConfigData();
 
     private Config() {
         loadConfig();
@@ -35,17 +35,13 @@ public class Config {
     }
 
     private void loadConfig() {
-        configManager = WorkshopApi.manager().createConfigManager("Steam 丰富状态扩展");
-        configHelper = configManager.getConfig();
-
         if (Files.notExists(configHelper.getConfigPath())) {
             // 创建默认配置文件
-            configData = new ConfigData();
             saveConfig();
             return;
         }
 
-        configData = new ConfigData();
+        configHelper.reload();
         configData.songFormat = configHelper.get("songFormat", "{artist} - {title}");
         configData.initAfterStart = configHelper.get("initAfterStart", false);
         System.out.println("配置文件加载成功");
