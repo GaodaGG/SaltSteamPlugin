@@ -1,8 +1,10 @@
 # 为 SPW Steam丰富状态进行扩展的插件
 ## 用法:
 1. 将Plugin复制到%appdata%\Salt Player for Windows\workshop
-2. 打开SPW 设置 - 账户 将丰富状态功能关闭
-3. 修改 %appdata%\Salt Player for Windows\workshop 下的config.json文件
+2. 打开设置 → 账户 将丰富状态功能关闭
+3. 设置 → 创意工坊 → 模组管理 启用 "Steam 丰富状态扩展"
+4. 修改配置
+5. 重启SPW
 
 ## 可配置项:
 - songFormat: 歌曲格式化字符串，支持 {title}, {artist}, {album}, {albumArtist}, {mainLyrics}, {subLyrics}

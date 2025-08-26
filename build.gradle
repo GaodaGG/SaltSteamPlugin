@@ -22,9 +22,8 @@ repositories {
 
 dependencies {
     implementation "com.code-disaster.steamworks4j:steamworks4j:1.9.0"
-    implementation "com.google.code.gson:gson:2.10.1"
-    compileOnly "com.github.Moriafly:spw-workshop-api:0.1.0-dev09"
-    kapt "com.github.Moriafly:spw-workshop-api:0.1.0-dev09"
+    compileOnly "com.github.Moriafly:spw-workshop-api:0.1.0-dev10"
+    kapt "com.github.Moriafly:spw-workshop-api:0.1.0-dev10"
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -36,7 +35,7 @@ test {
 
 def pluginClass = "com.gg.SaltSteamPlugin.MainPlugin"
 def pluginId = "Steam 丰富状态扩展"
-def pluginVersion = "2.2.0"
+def pluginVersion = "2.3.0"
 def pluginProvider = "GaodaGG"
 
 tasks.named("jar") {
@@ -48,7 +47,8 @@ tasks.named("jar") {
         attributes["Plugin-Id"] = pluginId
         attributes["Plugin-Version"] = pluginVersion
         attributes["Plugin-Provider"] = pluginProvider
-        attributes["Plugin-Open-Source-Link"] = "https://github.com/GaodaGG/SaltSteamPlugin"
+        attributes["Plugin-Open-Source-Url"] = "https://github.com/GaodaGG/SaltSteamPlugin"
+        attributes["Plugin-Has-Config"] = true
     }
 }
 

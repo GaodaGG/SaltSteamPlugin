@@ -1,0 +1,22 @@
+{
+  "configs": [
+    {
+      "title": "Config",
+      "config": "config.json",
+      "preferences": [
+        {
+          "key": "songFormat",
+          "type": "edittext",
+          "title": "编辑songFormat",
+          "default_value": "{artist} - {title}"
+        },
+        {
+          "key": "initAfterStart",
+          "type": "switch",
+          "title": "启动后初始化",
+          "default_value": false
+        }
+      ]
+    }
+  ]
+}
