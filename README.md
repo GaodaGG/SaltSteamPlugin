@@ -1,6 +1,6 @@
 # 为 SPW Steam丰富状态进行扩展的插件
 ## 用法:
-1. 将Plugin复制到%appdata%\Salt Player for Windows\workshop
+1. 将Plugin复制到%appdata%\Salt Player for Windows\workshop\plugins
 2. 打开设置 → 账户 将丰富状态功能关闭
 3. 设置 → 创意工坊 → 模组管理 启用 "Steam 丰富状态扩展"
 4. 修改配置
