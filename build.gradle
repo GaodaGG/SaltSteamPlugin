@@ -35,9 +35,12 @@ test {
 }
 
 def pluginClass = "com.gg.SaltSteamPlugin.MainPlugin"
-def pluginId = "Steam 丰富状态扩展"
-def pluginVersion = "2.3.0"
+def pluginId = "com.gg.SaltSteamPlugin"
+def pluginName = "Steam 丰富状态扩展"
+def pluginVersion = "2.4.0"
 def pluginProvider = "GaodaGG"
+def pluginOpenSourceUrl = "https://github.com/GaodaGG/SaltSteamPlugin"
+def pluginDescription = "通过 Steam API 丰富 Salt Player 的状态信息"
 
 tasks.named("jar") {
     destinationDirectory = file(System.getenv("APPDATA") + "/Salt Player for Windows/workshop/plugins/")
@@ -46,17 +49,19 @@ tasks.named("jar") {
     manifest {
         attributes["Plugin-Class"] = pluginClass
         attributes["Plugin-Id"] = pluginId
+        attributes["Plugin-Name"] = pluginName
         attributes["Plugin-Version"] = pluginVersion
         attributes["Plugin-Provider"] = pluginProvider
-        attributes["Plugin-Open-Source-Url"] = "https://github.com/GaodaGG/SaltSteamPlugin"
+        attributes["Plugin-Description"] = pluginDescription
+        attributes["Plugin-Open-Source-Url"] = pluginOpenSourceUrl
         attributes["Plugin-Has-Config"] = true
     }
 }
 
 tasks.register("plugin", Jar) {
     destinationDirectory = file(System.getenv("APPDATA") + "/Salt Player for Windows/workshop/plugins/")
-    archiveFileName = "plugin-${pluginId}-${pluginVersion}.zip"
-    archiveBaseName.set("plugin-" + pluginId + "-" + pluginVersion)
+    archiveFileName = "plugin-${pluginName}-${pluginVersion}.zip"
+    archiveBaseName.set("plugin-" + pluginName + "-" + pluginVersion)
 
     into("classes") {
         with(tasks.named("jar").get())

@@ -2,9 +2,16 @@ package com.gg.SaltSteamPlugin;
 
 import com.codedisaster.steamworks.SteamAPI;
 import com.codedisaster.steamworks.SteamException;
-import org.pf4j.Plugin;
+import com.xuncorp.spw.workshop.api.PluginContext;
+import com.xuncorp.spw.workshop.api.SpwPlugin;
 
-public class MainPlugin extends Plugin {
+import org.jetbrains.annotations.NotNull;
+
+public class MainPlugin extends SpwPlugin {
+    public MainPlugin(@NotNull PluginContext pluginContext) {
+        super(pluginContext);
+    }
+
     @Override
     public void start() {
         super.start();
@@ -20,7 +27,8 @@ public class MainPlugin extends Plugin {
             new Thread(() -> {
                 try {
                     Thread.sleep(3000);
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                }
                 MainPluginExtension.initSteamAPI();
             }).start();
         }
