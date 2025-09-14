@@ -21,9 +21,10 @@ repositories {
 }
 
 dependencies {
+    compileOnly 'net.jthink:jaudiotagger:3.0.1'
     implementation "com.code-disaster.steamworks4j:steamworks4j:1.9.0"
-    compileOnly "com.github.Moriafly:spw-workshop-api:0.1.0-dev10"
-    kapt "com.github.Moriafly:spw-workshop-api:0.1.0-dev10"
+    compileOnly "com.github.Moriafly:spw-workshop-api:0.1.0-dev14"
+    kapt "com.github.Moriafly:spw-workshop-api:0.1.0-dev14"
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'

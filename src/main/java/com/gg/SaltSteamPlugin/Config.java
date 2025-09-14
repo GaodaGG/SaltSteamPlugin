@@ -4,16 +4,13 @@ import com.xuncorp.spw.workshop.api.PlaybackExtensionPoint;
 import com.xuncorp.spw.workshop.api.WorkshopApi;
 import com.xuncorp.spw.workshop.api.config.ConfigHelper;
 import com.xuncorp.spw.workshop.api.config.ConfigManager;
-import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.text.Normalizer;
 
 public class Config {
-    private static final String CONFIG_FILE = "config.json";
     private static Config instance;
-    ConfigManager configManager = WorkshopApi.manager().createConfigManager("Steam 丰富状态扩展");
+    ConfigManager configManager = WorkshopApi.manager().createConfigManager();
     ConfigHelper configHelper = configManager.getConfig();
     private ConfigData configData = new ConfigData();
 
@@ -27,11 +24,6 @@ public class Config {
             instance = new Config();
         }
         return instance;
-    }
-
-    @NotNull
-    private static Path getConfigPath() {
-        return Path.of(System.getenv("APPDATA") + "/Salt Player for Windows/workshop/", CONFIG_FILE);
     }
 
     private void loadConfig() {
@@ -56,19 +48,26 @@ public class Config {
     private void configWatcher() {
         configManager.addConfigChangeListener(configHelper -> {
             loadConfig();
-            MainPluginExtension.setRichPresence(formatSongString(MainPluginExtension.getMediaItem(), MainPluginExtension.getLyricsLine()));
+            MainPluginExtension.setRichPresence(
+                    formatSongString(
+                            MainPluginExtension.getMediaItem(),
+                            MainPluginExtension.getLyricsLine(),
+                            MainPluginExtension.getPosition(),
+                            MainPluginExtension.getDuration()
+                    )
+            );
         });
     }
 
     public String formatSongString(PlaybackExtensionPoint.MediaItem mediaItem) {
-        return formatSongString(mediaItem, null);
+        return formatSongString(mediaItem, null, null, null);
     }
 
     public String formatSongString(PlaybackExtensionPoint.LyricsLine lyricsLine) {
-        return formatSongString(null, lyricsLine);
+        return formatSongString(null, lyricsLine, "", "");
     }
 
-    public String formatSongString(PlaybackExtensionPoint.MediaItem mediaItem, PlaybackExtensionPoint.LyricsLine lyricsLine) {
+    public String formatSongString(PlaybackExtensionPoint.MediaItem mediaItem, PlaybackExtensionPoint.LyricsLine lyricsLine, String position, String duration) {
         String title = mediaItem != null ? mediaItem.getTitle() : "";
         String artist = mediaItem != null ? mediaItem.getArtist() : "";
         String album = mediaItem != null ? mediaItem.getAlbum() : "";
@@ -83,12 +82,18 @@ public class Config {
                 .replace("{album}", album)
                 .replace("{albumArtist}", albumArtist)
                 .replace("{mainLyrics}", mainLyrics)
-                .replace("{subLyrics}", subLyrics);
+                .replace("{subLyrics}", subLyrics)
+                .replace("{position}", position != null ? position : "")
+                .replace("{duration}", duration != null ? duration : "");
         return Normalizer.normalize(replacedString, Normalizer.Form.NFKD).replaceAll("\\p{M}", "");
     }
 
     public boolean hasLyrics() {
         return configData.songFormat.contains("{mainLyrics}") || configData.songFormat.contains("{subLyrics}");
+    }
+
+    public boolean hasPosition() {
+        return configData.songFormat.contains("{position}");
     }
 
     public boolean isInitAfterStart() {
