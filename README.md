@@ -7,12 +7,24 @@
 5. 重启SPW
 
 ## 可配置项:
-- songFormat: 歌曲格式化字符串，支持 {title}, {artist}, {album}, {albumArtist}, {mainLyrics}, {subLyrics}
-> 示例: "{artist} - {title}" 或 "{albumArtist} - {album} - {title}"
-> 
-> 注意: {mainLyrics} 为 主歌词文本，{subLyrics} 为翻译歌词文本
-- initAfterStart: 为true时，插件将会在SPW启动后三秒再初始化Steam SDK
-> 这可以避免SPW启动后，应用内显示steam无法连接的问题
+- `songFormat`：歌曲信息的格式化字符串。可用占位符：
+  - `{title}`：歌曲标题
+  - `{artist}`：艺术家
+  - `{album}`：专辑名
+  - `{albumArtist}`：专辑艺术家
+  - `{mainLyrics}`：主歌词文本
+  - `{subLyrics}`：翻译歌词文本
+  - `{position}`：当前播放位置，格式为 mm:ss
+  - `{duration}`：歌曲总时长，格式为 mm:ss
+
+  示例：
+  - `{artist} - {title}`
+  - `{albumArtist} - {album} - {title}`
+
+  注意：由于 Steam 限制，丰富状态只能以每5秒更新一次
+
+- `initAfterStart`：为 `true` 时，插件将在 SPW 启动后三秒再初始化 Steam SDK。
+  > 这可以避免 SPW 启动后，应用内显示 steam 无法连接的问题
 
 # **不需要解压!!**
 
