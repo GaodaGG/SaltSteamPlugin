@@ -11,10 +11,18 @@
           "default_value": "{artist} - {title}"
         },
         {
-          "type": "button",
-          "title": "检查是否寻找到宿主类",
-          "summary": "如果没有找到宿主类，插件将无法正常工作",
-          "on_click": "com.gg.SaltSteamPlugin.MainPlugin.toastFoundClassStatus"
+          "key": "cachedSteamworksClassName",
+          "type": "edittext",
+          "title": "缓存的 Steamworks 类名",
+          "summary": "自动生成的缓存，通常无需手动修改",
+          "default_value": ""
+        },
+        {
+          "key": "cachedSpwInfo",
+          "type": "edittext",
+          "title": "缓存的 SPW 版本信息",
+          "summary": "自动生成的缓存，通常无需手动修改",
+          "default_value": ""
         },
         {
           "type": "button",

@@ -14,6 +14,11 @@ public class SteamworksCatcher {
 
     private static volatile Object cachedInstance = null;
     private static volatile Class<?> cachedClass = null;
+    private static String currentSpwInfo = "";
+
+    public static void init(String spwVersion, String spwChannel) {
+        currentSpwInfo = spwVersion + "@" + spwChannel;
+    }
 
     /**
      * 获取缓存的 Steamworks4k 实例（Object 类型），如果尚未获取则触发扫描。
@@ -22,7 +27,11 @@ public class SteamworksCatcher {
         if (cachedInstance == null) {
             synchronized (SteamworksCatcher.class) {
                 if (cachedInstance == null) {
-                    cachedInstance = scanForSteamworks();
+                    cachedInstance = tryLoadFromCache();
+                    if (cachedInstance == null) {
+                        cachedInstance = scanForSteamworks();
+                        // scanForSteamworks saves the config internally if found
+                    }
                 }
             }
         }
@@ -42,8 +51,39 @@ public class SteamworksCatcher {
     public static Object refreshSteamworks() {
         synchronized (SteamworksCatcher.class) {
             cachedInstance = scanForSteamworks();
+            // scanForSteamworks saves the config internally if found
         }
         return cachedInstance;
+    }
+
+    private static Object tryLoadFromCache() {
+        Config config = Config.getInstance();
+        String cachedSpwInfo = config.getCachedSpwInfo();
+        String cachedClassName = config.getCachedSteamworksClassName();
+
+        if (currentSpwInfo.equals(cachedSpwInfo) && cachedClassName != null && !cachedClassName.isEmpty()) {
+            try {
+                System.out.println("[SteamworksCatcher] Trying to load from cache: " + cachedClassName);
+                // 尝试加载缓存的类
+                // 这里需要使用合适的 ClassLoader，通常 ContextClassLoader 或者 AppClassLoader 应该可以
+                Class<?> clazz = Class.forName(cachedClassName, false, Thread.currentThread().getContextClassLoader());
+
+                // 尝试从类中获取实例 (复用 scan 中的逻辑)
+                Object result = tryExtractFromMethods(clazz);
+                if (result == null) {
+                    result = tryExtractFromFields(clazz);
+                }
+
+                if (result != null) {
+                    cachedClass = result.getClass();
+                    System.out.println("[SteamworksCatcher] Loaded from cache successfully.");
+                    return result;
+                }
+            } catch (Throwable e) {
+                System.err.println("[SteamworksCatcher] Failed to load from cache: " + e.getMessage());
+            }
+        }
+        return null;
     }
 
     /**
@@ -171,6 +211,7 @@ public class SteamworksCatcher {
                 if (result != null) {
                     cachedClass = result.getClass();
                     System.out.println("[SteamworksCatcher] Found Steamworks4k via method in: " + clazz.getName());
+                    Config.getInstance().setCachedSteamworksInfo(clazz.getName(), currentSpwInfo);
                     return result;
                 }
             } catch (Throwable ignored) {
@@ -184,6 +225,7 @@ public class SteamworksCatcher {
                 if (result != null) {
                     cachedClass = result.getClass();
                     System.out.println("[SteamworksCatcher] Found Steamworks4k via field in: " + clazz.getName());
+                    Config.getInstance().setCachedSteamworksInfo(clazz.getName(), currentSpwInfo);
                     return result;
                 }
             } catch (Throwable ignored) {

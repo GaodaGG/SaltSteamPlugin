@@ -35,11 +35,15 @@ public class Config {
 
         configHelper.reload();
         configData.songFormat = configHelper.get("songFormat", "{artist} - {title}");
+        configData.cachedSteamworksClassName = configHelper.get("cachedSteamworksClassName", "");
+        configData.cachedSpwInfo = configHelper.get("cachedSpwInfo", "");
         System.out.println("配置文件加载成功");
     }
 
     public void saveConfig() {
         configHelper.set("songFormat", configData.songFormat);
+        configHelper.set("cachedSteamworksClassName", configData.cachedSteamworksClassName);
+        configHelper.set("cachedSpwInfo", configData.cachedSpwInfo);
         configHelper.save();
     }
 
@@ -98,7 +102,23 @@ public class Config {
         return configData;
     }
 
+    public void setCachedSteamworksInfo(String className, String spwInfo) {
+        configData.cachedSteamworksClassName = className;
+        configData.cachedSpwInfo = spwInfo;
+        saveConfig();
+    }
+
+    public String getCachedSteamworksClassName() {
+        return configData.cachedSteamworksClassName;
+    }
+
+    public String getCachedSpwInfo() {
+        return configData.cachedSpwInfo;
+    }
+
     public static class ConfigData {
         public String songFormat = "{artist} - {title}";
+        public String cachedSteamworksClassName = "";
+        public String cachedSpwInfo = "";
     }
 }

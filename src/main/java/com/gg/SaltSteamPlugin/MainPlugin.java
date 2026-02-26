@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 public class MainPlugin extends SpwPlugin {
     public MainPlugin(@NotNull PluginContext pluginContext) {
         super(pluginContext);
+        SteamworksCatcher.init(pluginContext.getSpwVersion(), pluginContext.getSpwChannel().name());
     }
 
     @Override
@@ -18,15 +19,5 @@ public class MainPlugin extends SpwPlugin {
         steamIntegration.initialize();
         steamIntegration.clearRichPresence();
         steamIntegration.shutdown();
-    }
-
-    public static void toastFoundClassStatus() {
-        Class<?> steamworks = SteamworksCatcher.getSteamworksClass();
-
-        if (steamworks != null) {
-            WorkshopApi.ui().toast("✅ 已找到宿主类: " + steamworks.getName(), WorkshopApi.Ui.ToastType.Success);
-        } else {
-            WorkshopApi.ui().toast("❌ 未找到宿主类", WorkshopApi.Ui.ToastType.Error);
-        }
     }
 }
