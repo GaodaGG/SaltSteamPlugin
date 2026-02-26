@@ -35,13 +35,11 @@ public class Config {
 
         configHelper.reload();
         configData.songFormat = configHelper.get("songFormat", "{artist} - {title}");
-        configData.initAfterStart = configHelper.get("initAfterStart", false);
         System.out.println("配置文件加载成功");
     }
 
     public void saveConfig() {
         configHelper.set("songFormat", configData.songFormat);
-        configHelper.set("initAfterStart", configData.initAfterStart);
         configHelper.save();
     }
 
@@ -96,16 +94,11 @@ public class Config {
         return configData.songFormat.contains("{position}");
     }
 
-    public boolean isInitAfterStart() {
-        return configData.initAfterStart;
-    }
-
     public ConfigData getConfigData() {
         return configData;
     }
 
     public static class ConfigData {
         public String songFormat = "{artist} - {title}";
-        public boolean initAfterStart = false;
     }
 }

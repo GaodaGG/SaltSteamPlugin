@@ -1,9 +1,8 @@
 package com.gg.SaltSteamPlugin;
 
-import com.codedisaster.steamworks.SteamAPI;
-import com.codedisaster.steamworks.SteamException;
 import com.xuncorp.spw.workshop.api.PluginContext;
 import com.xuncorp.spw.workshop.api.SpwPlugin;
+import com.xuncorp.spw.workshop.api.WorkshopApi;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -13,33 +12,21 @@ public class MainPlugin extends SpwPlugin {
     }
 
     @Override
-    public void start() {
-        super.start();
-        try {
-            SteamAPI.loadLibraries();
-        } catch (SteamException e) {
-            throw new RuntimeException(e);
-        }
-
-        Config config = Config.getInstance();
-
-        if (config.isInitAfterStart()) {
-            new Thread(() -> {
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                }
-                MainPluginExtension.initSteamAPI();
-            }).start();
-        }
-    }
-
-    @Override
     public void stop() {
         super.stop();
         SteamIntegration steamIntegration = new SteamIntegration();
         steamIntegration.initialize();
         steamIntegration.clearRichPresence();
         steamIntegration.shutdown();
+    }
+
+    public static void toastFoundClassStatus() {
+        Class<?> steamworks = SteamworksCatcher.getSteamworksClass();
+
+        if (steamworks != null) {
+            WorkshopApi.ui().toast("✅ 已找到宿主类: " + steamworks.getName(), WorkshopApi.Ui.ToastType.Success);
+        } else {
+            WorkshopApi.ui().toast("❌ 未找到宿主类", WorkshopApi.Ui.ToastType.Error);
+        }
     }
 }

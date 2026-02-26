@@ -15,6 +15,7 @@ java {
 repositories {
     mavenLocal()
     mavenCentral()
+    google()
     maven {
         url = 'https://jitpack.io'
     }
@@ -22,9 +23,8 @@ repositories {
 
 dependencies {
     compileOnly 'net.jthink:jaudiotagger:3.0.1'
-    implementation "com.code-disaster.steamworks4j:steamworks4j:1.9.0"
-    compileOnly "com.github.Moriafly:spw-workshop-api:0.1.0-dev14"
-    kapt "com.github.Moriafly:spw-workshop-api:0.1.0-dev14"
+    compileOnly "com.github.Moriafly:spw-workshop-api:0.1.0-dev20"
+    kapt "com.github.Moriafly:spw-workshop-api:0.1.0-dev20"
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -43,7 +43,6 @@ def pluginOpenSourceUrl = "https://github.com/GaodaGG/SaltSteamPlugin"
 def pluginDescription = "通过 Steam API 丰富 Salt Player 的状态信息"
 
 tasks.named("jar") {
-    destinationDirectory = file(System.getenv("APPDATA") + "/Salt Player for Windows/workshop/plugins/")
     archiveFileName = "plugin-${pluginId}-${pluginVersion}.jar"
 
     manifest {
@@ -59,7 +58,6 @@ tasks.named("jar") {
 }
 
 tasks.register("plugin", Jar) {
-    destinationDirectory = file(System.getenv("APPDATA") + "/Salt Player for Windows/workshop/plugins/")
     archiveFileName = "plugin-${pluginName}-${pluginVersion}.zip"
     archiveBaseName.set("plugin-" + pluginName + "-" + pluginVersion)
 

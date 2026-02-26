@@ -11,10 +11,15 @@
           "default_value": "{artist} - {title}"
         },
         {
-          "key": "initAfterStart",
-          "type": "switch",
-          "title": "启动后初始化",
-          "default_value": false
+          "type": "button",
+          "title": "检查是否寻找到宿主类",
+          "summary": "如果没有找到宿主类，插件将无法正常工作",
+          "on_click": "com.gg.SaltSteamPlugin.MainPlugin.toastFoundClassStatus"
+        },
+        {
+          "type": "button",
+          "title": "强制重新扫描并刷新缓存",
+          "on_click": "com.gg.SaltSteamPlugin.SteamworksCatcher.refreshSteamworks"
         }
       ]
     }

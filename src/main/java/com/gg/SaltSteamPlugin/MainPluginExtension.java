@@ -1,7 +1,5 @@
 package com.gg.SaltSteamPlugin;
 
-import com.codedisaster.steamworks.SteamAPI;
-import com.codedisaster.steamworks.SteamException;
 import com.xuncorp.spw.workshop.api.PlaybackExtensionPoint;
 
 import org.jaudiotagger.audio.AudioFile;
@@ -19,7 +17,6 @@ import java.util.logging.Logger;
 @Extension
 public class MainPluginExtension implements PlaybackExtensionPoint {
     private static final Config config = Config.getInstance();
-    private static boolean isInitialized = false;
     private static MediaItem mediaItem = null;
     private static LyricsLine lyricsLine = null;
     private static String position = "00:00";
@@ -28,10 +25,6 @@ public class MainPluginExtension implements PlaybackExtensionPoint {
     private static final Logger logger = Logger.getLogger(MainPluginExtension.class.getName());
 
     public static boolean setRichPresence(String formattedSong) {
-        if (!config.isInitAfterStart()) {
-            initSteamAPI();
-        }
-
         SteamIntegration steamIntegration = new SteamIntegration();
         steamIntegration.initialize();
         boolean song = steamIntegration.setRichPresence("song", formattedSong);
@@ -41,17 +34,6 @@ public class MainPluginExtension implements PlaybackExtensionPoint {
         return song && steamDisplay;
     }
 
-    public static void initSteamAPI() {
-        if (!isInitialized) {
-            try {
-                SteamAPI.init();
-            } catch (SteamException e) {
-                throw new RuntimeException(e);
-            }
-
-            isInitialized = true;
-        }
-    }
 
     public static MediaItem getMediaItem() {
         return mediaItem;
