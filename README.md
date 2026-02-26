@@ -1,7 +1,7 @@
 # 为 SPW Steam丰富状态进行扩展的插件
 ## 用法:
-1. 将Plugin复制到%appdata%\Salt Player for Windows\workshop\plugins
-2. 打开设置 → 账户 将丰富状态功能关闭
+1. 打开设置 → 账户 将丰富状态功能关闭
+2. 在 SPW 设置 → 创意工坊 → 模组管理 → 右上角导入模组 → 选择 `Steam_Rich_Presence.zip`
 3. 设置 → 创意工坊 → 模组管理 启用 "Steam 丰富状态扩展"
 4. 修改配置
 5. 重启SPW
@@ -26,7 +26,9 @@
 - `initAfterStart`：为 `true` 时，插件将在 SPW 启动后三秒再初始化 Steam SDK。
   > 这可以避免 SPW 启动后，应用内显示 steam 无法连接的问题
 
-# **不需要解压!!**
+## 注意事项:
+- 如果出现 `java.lang.UnsatisfiedLinkError` 错误，请尝试**删除** `%Temp%\steamworks4j` 目录下的文件再**重启**插件与 SPW
+- **不需要解压!!**
 
 ## 其他插件:
 [临时SPW全屏窗口插件](https://github.com/GaodaGG/SaltFullPlugin)
