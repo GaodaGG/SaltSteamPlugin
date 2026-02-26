@@ -78,7 +78,7 @@ public class Config {
         String mainLyrics = lyricsLine != null ? lyricsLine.getPureMainText() : "";
         String subLyrics = (lyricsLine != null && lyricsLine.getPureSubText() != null) ? lyricsLine.getPureSubText() : "";
 
-        String replacedString = configData.songFormat
+        return configData.songFormat
                 .replace("{title}", title)
                 .replace("{artist}", artist)
                 .replace("{album}", album)
@@ -87,7 +87,6 @@ public class Config {
                 .replace("{subLyrics}", subLyrics)
                 .replace("{position}", position != null ? position : "")
                 .replace("{duration}", duration != null ? duration : "");
-        return Normalizer.normalize(replacedString, Normalizer.Form.NFKD).replaceAll("\\p{M}", "");
     }
 
     public boolean hasLyrics() {
