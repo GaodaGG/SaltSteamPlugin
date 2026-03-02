@@ -4,7 +4,6 @@ package com.gg.SaltSteamPlugin;
  * Steam 集成层，通过 SteamworksCatcher 从宿主程序获取 Steamworks4k 实例。
  */
 public class SteamIntegration {
-
     private static final String STEAM_NOT_INITIALIZED_MSG = "Steam integration not initialized";
 
     private Object steamworks;

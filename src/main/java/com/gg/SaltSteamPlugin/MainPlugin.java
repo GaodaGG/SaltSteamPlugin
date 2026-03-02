@@ -15,9 +15,5 @@ public class MainPlugin extends SpwPlugin {
     @Override
     public void stop() {
         super.stop();
-        SteamIntegration steamIntegration = new SteamIntegration();
-        steamIntegration.initialize();
-        steamIntegration.clearRichPresence();
-        steamIntegration.shutdown();
     }
 }
