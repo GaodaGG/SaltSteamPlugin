@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.gg.SaltSteamPlugin'
-version = '1.0.0'
+version = '3.2.0'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -37,7 +37,7 @@ test {
 def pluginClass = "com.gg.SaltSteamPlugin.MainPlugin"
 def pluginId = "com.gg.SaltSteamPlugin"
 def pluginName = "Steam 丰富状态扩展"
-def pluginVersion = "3.1.0"
+def pluginVersion = version
 def pluginProvider = "GaodaGG"
 def pluginOpenSourceUrl = "https://github.com/GaodaGG/SaltSteamPlugin"
 def pluginDescription = "通过 Steam API 丰富 Salt Player 的状态信息"
