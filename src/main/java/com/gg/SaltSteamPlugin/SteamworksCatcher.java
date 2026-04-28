@@ -258,7 +258,10 @@ public class SteamworksCatcher {
      */
     private static Object tryExtractInstance(Class<?> clazz) {
         Object result = tryExtractFromMethods(clazz);
-        return result != null ? result : tryExtractFromFields(clazz);
+        if (result != null) return result;
+        result = tryExtractFromFields(clazz);
+        if (result != null) return result;
+        return tryExtractFromSingleton(clazz);
     }
 
     /**
@@ -301,6 +304,47 @@ public class SteamworksCatcher {
                         return value;
                     }
                 } catch (Throwable ignored) {
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
+    /**
+     * 从 Kotlin object 单例中提取 Steamworks4k 实例。
+     * Kotlin object 编译为 static final INSTANCE 字段，实例持有 val 属性作为字段/getter。
+     */
+    private static Object tryExtractFromSingleton(Class<?> clazz) {
+        try {
+            Field instanceField = clazz.getDeclaredField("INSTANCE");
+            if (!Modifier.isStatic(instanceField.getModifiers())
+                    || !Modifier.isFinal(instanceField.getModifiers())) {
+                return null;
+            }
+
+            instanceField.setAccessible(true);
+            Object singleton = instanceField.get(null);
+            if (singleton == null) return null;
+
+            // 尝试单例上的 0 参实例方法（如 getSteamworks4k()）
+            for (Method method : singleton.getClass().getDeclaredMethods()) {
+                if (method.getParameterCount() != 0) continue;
+                if (!isSteamworksClass(method.getReturnType())) continue;
+                method.setAccessible(true);
+                Object result = method.invoke(singleton);
+                if (result != null && isSteamworksClass(result.getClass())) {
+                    return result;
+                }
+            }
+
+            // 尝试单例上的实例字段
+            for (Field field : singleton.getClass().getDeclaredFields()) {
+                if (!isSteamworksClass(field.getType())) continue;
+                field.setAccessible(true);
+                Object value = field.get(singleton);
+                if (value != null && isSteamworksClass(value.getClass())) {
+                    return value;
                 }
             }
         } catch (Throwable ignored) {
