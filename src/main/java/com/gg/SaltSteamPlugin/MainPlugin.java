@@ -2,7 +2,6 @@ package com.gg.SaltSteamPlugin;
 
 import com.xuncorp.spw.workshop.api.PluginContext;
 import com.xuncorp.spw.workshop.api.SpwPlugin;
-import com.xuncorp.spw.workshop.api.WorkshopApi;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -15,5 +14,10 @@ public class MainPlugin extends SpwPlugin {
     @Override
     public void stop() {
         super.stop();
+    }
+
+    @Override
+    public void update() {
+        SteamworksCatcher.refreshSteamworks();
     }
 }
