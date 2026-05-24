@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.CodeSource;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -29,8 +30,7 @@ public class SteamworksCatcher {
     private static final String TAG = "[SteamworksCatcher] ";
     private static final String TARGET_CLASS_NAME = "com.xuncorp.steamworks4k.Steamworks4k";
 
-    private static volatile Object cachedInstance = null;
-    private static volatile Class<?> cachedClass = null;
+    private static final AtomicReference<Object> cachedInstance = new AtomicReference<>(null);
     private static String currentSpwInfo = "";
 
     private SteamworksCatcher() {
@@ -45,41 +45,38 @@ public class SteamworksCatcher {
      * 优先从配置缓存加载，未命中则触发 JAR 扫描。
      */
     public static Object getSteamworks() {
-        if (cachedInstance == null) {
+        Object instance = cachedInstance.get();
+        if (instance == null) {
             synchronized (SteamworksCatcher.class) {
-                if (cachedInstance == null) {
-                    cachedInstance = tryLoadFromCache();
-                    if (cachedInstance == null) {
-                        cachedInstance = scanForSteamworks();
+                instance = cachedInstance.get();
+                if (instance == null) {
+                    instance = tryLoadFromCache();
+                    if (instance == null) {
+                        instance = scanForSteamworks();
                     }
+                    cachedInstance.set(instance);
                 }
             }
         }
-        return cachedInstance;
-    }
-
-    /**
-     * 获取缓存中的 Steamworks4k Class 对象。
-     */
-    public static Class<?> getSteamworksClass() {
-        return cachedClass;
+        return instance;
     }
 
     /**
      * 强制重新扫描并刷新缓存。
      */
-    public static Object refreshSteamworks() {
+    public static void refreshSteamworks() {
+        Object instance;
         synchronized (SteamworksCatcher.class) {
-            cachedInstance = scanForSteamworks();
+            instance = scanForSteamworks();
+            cachedInstance.set(instance);
         }
-        if (cachedInstance != null) {
+        if (instance != null) {
             System.out.println(TAG + "Steamworks4k instance refreshed successfully");
             WorkshopApi.ui().toast("Steamworks4k instance refreshed successfully", WorkshopApi.Ui.ToastType.Success);
         } else {
             System.err.println(TAG + "Failed to refresh Steamworks4k instance");
             WorkshopApi.ui().toast("Failed to refresh Steamworks4k instance", WorkshopApi.Ui.ToastType.Error);
         }
-        return cachedInstance;
     }
 
     /**
@@ -89,9 +86,9 @@ public class SteamworksCatcher {
         if (instance == null) return false;
         try {
             // Kotlin 属性 isInitialized 编译后可能生成 isInitialized() 或 getInitialized()
-            Method method = findMethod(instance.getClass(), "isInitialized", 0);
+            Method method = findMethod(instance.getClass(), "isInitialized");
             if (method == null) {
-                method = findMethod(instance.getClass(), "getInitialized", 0);
+                method = findMethod(instance.getClass(), "getInitialized");
             }
             if (method != null) {
                 method.setAccessible(true);
@@ -121,10 +118,10 @@ public class SteamworksCatcher {
                 method.setAccessible(true);
                 Object result = method.invoke(instance, key, value);
                 // Result<Boolean> 在 JVM 层面：成功时为 boxed Boolean，失败时为 Result.Failure 包装
-                return result instanceof Boolean ? (Boolean) result : result != null;
+                return result instanceof Boolean bool ? bool : result != null;
             }
             logError("setRichPresence method not found");
-        } catch (Throwable e) {
+        } catch (Exception e) {
             logError("Failed to call setRichPresence: " + e.getMessage());
         }
         return false;
@@ -152,11 +149,10 @@ public class SteamworksCatcher {
 
             Object result = tryExtractInstance(clazz);
             if (result != null) {
-                cachedClass = result.getClass();
                 logInfo("Loaded from cache successfully.");
                 return result;
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             logError("Failed to load from cache: " + e.getMessage());
         }
         return null;
@@ -300,8 +296,6 @@ public class SteamworksCatcher {
 
             Object result = tryExtractInstance(clazz);
             if (result != null) {
-                cachedClass = result.getClass();
-
                 String msg = "Found Steamworks4k in: " + clazz.getName();
                 logInfo(msg);
                 WorkshopApi.ui().toast(TAG + msg, WorkshopApi.Ui.ToastType.Success);
@@ -309,8 +303,8 @@ public class SteamworksCatcher {
                 Config.getInstance().setCachedSteamworksInfo(clazz.getName(), currentSpwInfo);
                 return result;
             }
-        } catch (Throwable ignored) {
-            // 忽略加载单个类时的错误
+        } catch (Exception ignored) {
+            /* Ignore load error */
         }
         return null;
     }
@@ -333,17 +327,16 @@ public class SteamworksCatcher {
      */
     private static Object tryExtractFromMethods(Class<?> clazz) {
         for (Method method : clazz.getDeclaredMethods()) {
-            try {
-                if (!Modifier.isStatic(method.getModifiers())) continue;
-                if (method.getParameterCount() != 0) continue;
-                if (!isSteamworksClass(method.getReturnType())) continue;
-
-                method.setAccessible(true);
-                Object result = method.invoke(null);
-                if (result != null && isSteamworksClass(result.getClass())) {
-                    return result;
+            if (Modifier.isStatic(method.getModifiers()) && method.getParameterCount() == 0 && isSteamworksClass(method.getReturnType())) {
+                try {
+                    method.setAccessible(true);
+                    Object result = method.invoke(null);
+                    if (result != null && isSteamworksClass(result.getClass())) {
+                        return result;
+                    }
+                } catch (Exception ignored) {
+                    /* Ignore invocation errors */
                 }
-            } catch (Throwable ignored) {
             }
         }
         return null;
@@ -353,21 +346,26 @@ public class SteamworksCatcher {
      * 查找 static、类型为 Steamworks4k 的字段并提取值。
      */
     private static Object tryExtractFromFields(Class<?> clazz) {
-        try {
-            for (Field field : clazz.getDeclaredFields()) {
-                try {
-                    if (!Modifier.isStatic(field.getModifiers())) continue;
-                    if (!isSteamworksClass(field.getType())) continue;
-
-                    field.setAccessible(true);
-                    Object value = field.get(null);
-                    if (value != null && isSteamworksClass(value.getClass())) {
-                        return value;
-                    }
-                } catch (Throwable ignored) {
+        for (Field field : clazz.getDeclaredFields()) {
+            if (Modifier.isStatic(field.getModifiers()) && isSteamworksClass(field.getType())) {
+                Object result = tryExtractSingleField(field, null);
+                if (result != null) {
+                    return result;
                 }
             }
-        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
+    private static Object tryExtractSingleField(Field field, Object instance) {
+        try {
+            field.setAccessible(true);
+            Object value = field.get(instance);
+            if (value != null && isSteamworksClass(value.getClass())) {
+                return value;
+            }
+        } catch (Exception ignored) {
+            /* Ignore field access error */
         }
         return null;
     }
@@ -389,26 +387,40 @@ public class SteamworksCatcher {
             if (singleton == null) return null;
 
             // 尝试单例上的 0 参实例方法（如 getSteamworks4k()）
-            for (Method method : singleton.getClass().getDeclaredMethods()) {
-                if (method.getParameterCount() != 0) continue;
-                if (!isSteamworksClass(method.getReturnType())) continue;
-                method.setAccessible(true);
-                Object result = method.invoke(singleton);
-                if (result != null && isSteamworksClass(result.getClass())) {
-                    return result;
-                }
-            }
+            Object result = tryExtractFromMethodsOnSingleton(singleton);
+            if (result != null) return result;
 
             // 尝试单例上的实例字段
-            for (Field field : singleton.getClass().getDeclaredFields()) {
-                if (!isSteamworksClass(field.getType())) continue;
-                field.setAccessible(true);
-                Object value = field.get(singleton);
-                if (value != null && isSteamworksClass(value.getClass())) {
-                    return value;
+            return tryExtractFromFieldsOnSingleton(singleton);
+        } catch (Exception ignored) {
+            /* Ignore singleton error */
+        }
+        return null;
+    }
+
+    private static Object tryExtractFromMethodsOnSingleton(Object singleton) {
+        for (Method method : singleton.getClass().getDeclaredMethods()) {
+            if (method.getParameterCount() == 0 && isSteamworksClass(method.getReturnType())) {
+                try {
+                    method.setAccessible(true);
+                    Object result = method.invoke(singleton);
+                    if (result != null && isSteamworksClass(result.getClass())) {
+                        return result;
+                    }
+                } catch (Exception ignored) {
+                    /* Ignore error */
                 }
             }
-        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
+    private static Object tryExtractFromFieldsOnSingleton(Object singleton) {
+        for (Field field : singleton.getClass().getDeclaredFields()) {
+            if (isSteamworksClass(field.getType())) {
+                Object result = tryExtractSingleField(field, singleton);
+                if (result != null) return result;
+            }
         }
         return null;
     }
@@ -430,15 +442,16 @@ public class SteamworksCatcher {
     /**
      * 在类层次中按名称和参数数量查找方法。
      */
-    private static Method findMethod(Class<?> clazz, String name, int paramCount) {
+    private static Method findMethod(Class<?> clazz, String name) {
         for (Class<?> current = clazz; current != null && current != Object.class; current = current.getSuperclass()) {
             try {
                 for (Method m : current.getDeclaredMethods()) {
-                    if (m.getName().equals(name) && m.getParameterCount() == paramCount) {
+                    if (m.getName().equals(name) && m.getParameterCount() == 0) {
                         return m;
                     }
                 }
-            } catch (Throwable ignored) {
+            } catch (Exception ignored) {
+                /* Ignore error */
             }
         }
         return null;
@@ -458,7 +471,8 @@ public class SteamworksCatcher {
                         return m;
                     }
                 }
-            } catch (Throwable ignored) {
+            } catch (Exception ignored) {
+                /* Ignore error */
             }
         }
         return null;
@@ -472,7 +486,5 @@ public class SteamworksCatcher {
 
     private static void logError(String message) {
         System.err.println(TAG + message);
-        System.out.println(TAG + "Error details: " + message);
     }
 }
-
