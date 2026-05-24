@@ -4,9 +4,13 @@ import com.xuncorp.spw.workshop.api.WorkshopApi;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.CodeSource;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -68,6 +72,13 @@ public class SteamworksCatcher {
         synchronized (SteamworksCatcher.class) {
             cachedInstance = scanForSteamworks();
         }
+        if (cachedInstance != null) {
+            System.out.println(TAG + "Steamworks4k instance refreshed successfully");
+            WorkshopApi.ui().toast("Steamworks4k instance refreshed successfully", WorkshopApi.Ui.ToastType.Success);
+        } else {
+            System.err.println(TAG + "Failed to refresh Steamworks4k instance");
+            WorkshopApi.ui().toast("Failed to refresh Steamworks4k instance", WorkshopApi.Ui.ToastType.Error);
+        }
         return cachedInstance;
     }
 
@@ -86,8 +97,10 @@ public class SteamworksCatcher {
                 method.setAccessible(true);
                 return Boolean.TRUE.equals(method.invoke(instance));
             }
-        } catch (Throwable e) {
-            logError("Failed to check isInitialized: " + e.getMessage());
+        } catch (InvocationTargetException e) {
+            logError("Error invoking isInitialized: " + e.getCause());
+        } catch (IllegalAccessException e) {
+            logError("Illegal access in isInitialized: " + e.getMessage());
         }
         return false;
     }
@@ -181,18 +194,69 @@ public class SteamworksCatcher {
     /**
      * 定位包含目标类的宿主 JAR 文件路径。
      */
-    private static File locateHostJar() throws Exception {
-        Class<?> knownHostClass = Class.forName(TARGET_CLASS_NAME);
-        URL location = knownHostClass.getProtectionDomain().getCodeSource().getLocation();
-
-        if (location == null) {
-            logError("Could not determine host JAR location");
+    private static File locateHostJar() {
+        Class<?> knownHostClass;
+        try {
+            knownHostClass = Class.forName(TARGET_CLASS_NAME);
+        } catch (ClassNotFoundException e) {
+            logError("Known host class not found: " + TARGET_CLASS_NAME);
             return null;
         }
 
-        File hostJar = new File(location.toURI());
-        logInfo("Found JAR: " + hostJar.getAbsolutePath());
-        return hostJar;
+        ClassLoader loader = knownHostClass.getClassLoader();
+        logInfo("ClassLoader: " + loader);
+
+        URL location = null;
+        var pd = knownHostClass.getProtectionDomain();
+        if (pd != null) {
+            CodeSource cs = pd.getCodeSource();
+            if (cs != null) {
+                location = cs.getLocation();
+            }
+        }
+
+        if (location != null) {
+            logInfo("Location from CodeSource: " + location);
+            try {
+                File hostJar = new File(location.toURI());
+                logInfo("Found JAR via CodeSource: " + hostJar.getAbsolutePath());
+                return hostJar;
+            } catch (URISyntaxException e) {
+                logError("Invalid URI syntax for host location: " + e.getMessage());
+            }
+        }
+
+        // 备用方案：通过 class resource 反推 JAR 路径
+        String resourceName = TARGET_CLASS_NAME.replace('.', '/') + ".class";
+        URL resource = loader != null ? loader.getResource(resourceName) : ClassLoader.getSystemResource(resourceName);
+        logInfo("Class resource: " + resource);
+
+        if (resource == null) {
+            logError("Cannot find class resource for " + TARGET_CLASS_NAME);
+            return null;
+        }
+
+        String spec = resource.toString();
+        try {
+            // 解析类似 "jar:file:/xxx/app.jar!/com/..." 的路径
+            if (spec.startsWith("jar:file:")) {
+                int bang = spec.indexOf("!/");
+                if (bang > 0) {
+                    String jarUrlPart = spec.substring(4, bang); // 剥离最前面的 "jar:"
+                    File hostJar = new File(new URI(jarUrlPart));
+                    logInfo("Found JAR via resource: " + hostJar.getAbsolutePath());
+                    return hostJar;
+                }
+            } else if (spec.startsWith("file:")) {
+                logError("Class is loaded from file directory, not a jar: " + spec);
+                return null;
+            }
+        } catch (URISyntaxException e) {
+            logError("Invalid URI syntax for class resource: " + e.getMessage());
+        }
+
+        logError("Could not determine host JAR location from CodeSource or resource URL");
+        return null;
     }
 
     /**
@@ -268,22 +332,19 @@ public class SteamworksCatcher {
      * 查找 static 无参、返回值为 Steamworks4k 的方法并调用。
      */
     private static Object tryExtractFromMethods(Class<?> clazz) {
-        try {
-            for (Method method : clazz.getDeclaredMethods()) {
-                try {
-                    if (!Modifier.isStatic(method.getModifiers())) continue;
-                    if (method.getParameterCount() != 0) continue;
-                    if (!isSteamworksClass(method.getReturnType())) continue;
+        for (Method method : clazz.getDeclaredMethods()) {
+            try {
+                if (!Modifier.isStatic(method.getModifiers())) continue;
+                if (method.getParameterCount() != 0) continue;
+                if (!isSteamworksClass(method.getReturnType())) continue;
 
-                    method.setAccessible(true);
-                    Object result = method.invoke(null);
-                    if (result != null && isSteamworksClass(result.getClass())) {
-                        return result;
-                    }
-                } catch (Throwable ignored) {
+                method.setAccessible(true);
+                Object result = method.invoke(null);
+                if (result != null && isSteamworksClass(result.getClass())) {
+                    return result;
                 }
+            } catch (Throwable ignored) {
             }
-        } catch (Throwable ignored) {
         }
         return null;
     }
@@ -411,6 +472,7 @@ public class SteamworksCatcher {
 
     private static void logError(String message) {
         System.err.println(TAG + message);
+        System.out.println(TAG + "Error details: " + message);
     }
 }
 
