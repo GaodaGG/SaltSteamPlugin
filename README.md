@@ -21,11 +21,9 @@
   - `{artist} - {title}`
   - `{albumArtist} - {album} - {title}`
 
-  注意：由于 Steam 限制，丰富状态只能以每5秒更新一次
-
-# **不需要解压!!**
+  注意：由于 Steam 限制，丰富状态只能以每5秒更新一次，且无法使文本换行
 
 ## 其他插件:
-[临时SPW全屏窗口插件](https://github.com/GaodaGG/SaltFullPlugin)
+~~[临时SPW全屏窗口插件](https://github.com/GaodaGG/SaltFullPlugin)~~
 
 [Discord 丰富状态](https://github.com/GaodaGG/SaltDiscordPlugin)
