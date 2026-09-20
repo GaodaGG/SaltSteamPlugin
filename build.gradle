@@ -1,15 +1,24 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '2.0.21'
-    id 'org.jetbrains.kotlin.kapt' version '2.0.21'
+    id 'org.jetbrains.kotlin.jvm' version '2.3.0'
+    id 'org.jetbrains.kotlin.kapt' version '2.3.0'
+    id 'com.xuncorp.spw.workshop' version '0.1.0-dev21'
 }
 
 group = 'com.gg.SaltSteamPlugin'
 version = '3.3.1'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_25
+    }
 }
 
 repositories {
@@ -23,8 +32,8 @@ repositories {
 
 dependencies {
     compileOnly 'net.jthink:jaudiotagger:3.0.1'
-    compileOnly "com.github.Moriafly:spw-workshop-api:0.1.0-dev20"
-    kapt "com.github.Moriafly:spw-workshop-api:0.1.0-dev20"
+    compileOnly "com.github.Moriafly:spw-workshop-api:0.1.0-dev21"
+    kapt "com.github.Moriafly:spw-workshop-api:0.1.0-dev21"
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -34,42 +43,17 @@ test {
     useJUnitPlatform()
 }
 
-def pluginClass = "com.gg.SaltSteamPlugin.MainPlugin"
-def pluginId = "com.gg.SaltSteamPlugin"
-def pluginName = "Steam 丰富状态扩展"
-def pluginVersion = version
-def pluginProvider = "GaodaGG"
-def pluginOpenSourceUrl = "https://github.com/GaodaGG/SaltSteamPlugin"
-def pluginDescription = "通过 Steam API 丰富 Salt Player 的状态信息"
-
-tasks.named("jar") {
-    archiveFileName = "plugin-${pluginId}-${pluginVersion}.jar"
-
-    manifest {
-        attributes["Plugin-Class"] = pluginClass
-        attributes["Plugin-Id"] = pluginId
-        attributes["Plugin-Name"] = pluginName
-        attributes["Plugin-Version"] = pluginVersion
-        attributes["Plugin-Provider"] = pluginProvider
-        attributes["Plugin-Description"] = pluginDescription
-        attributes["Plugin-Open-Source-Url"] = pluginOpenSourceUrl
-        attributes["Plugin-Has-Config"] = true
-    }
+spmod { config ->
+    config.PluginClass = "com.gg.SaltSteamPlugin.MainPlugin"
+    config.PluginId = "com.gg.SaltSteamPlugin"
+    config.PluginName = "Steam 丰富状态扩展"
+    config.PluginVersion = project.version.toString()
+    config.PluginProvider = "GaodaGG"
+    config.PluginOpenSourceUrl = "https://github.com/GaodaGG/SaltSteamPlugin"
+    config.PluginDescription = "通过 Steam API 丰富 Salt Player 的状态信息"
+    config.PluginHasConfig = true
 }
 
-tasks.register("plugin", Jar) {
-    archiveFileName = "plugin-${pluginName}-${pluginVersion}.zip"
-    archiveBaseName.set("plugin-" + pluginName + "-" + pluginVersion)
-
-    into("classes") {
-        with(tasks.named("jar").get())
-    }
-    dependsOn(configurations.runtimeClasspath)
-    into("lib") {
-        from({
-            configurations.runtimeClasspath
-                    .filter { it.name.endsWith("jar") }
-        })
-    }
-    archiveExtension = 'zip'
+tasks.named("jar") {
+    archiveFileName = "plugin-${spmod.PluginId}-${spmod.PluginVersion}.jar"
 }
